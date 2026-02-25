@@ -1,0 +1,10 @@
+{
+  "name": "v2raysub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vercel API for decrypting built-in v2ray subscription payload",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,59 @@
+const {
+  parseUrlsFromEnv,
+  DEFAULT_USER_AGENT,
+  fetchAndDecrypt,
+} = require('../lib/subscription');
+
+module.exports = async function handler(req, res) {
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    return res.status(204).end();
+  }
+
+  if (req.method !== 'GET') {
+    return res.status(405).json({ ok: false, error: 'method not allowed' });
+  }
+
+  try {
+    const queryUrls = String(req.query.urls || '').trim();
+    const queryUrl = String(req.query.url || '').trim();
+    const format = String(req.query.format || 'text').toLowerCase();
+
+    const urls = queryUrls
+      ? queryUrls.split(',').map((v) => v.trim()).filter(Boolean)
+      : queryUrl
+      ? [queryUrl]
+      : parseUrlsFromEnv();
+
+    const userAgent = String(req.query.ua || process.env.SUB_USER_AGENT || DEFAULT_USER_AGENT).trim();
+
+    const result = await fetchAndDecrypt({ urls, userAgent });
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+    res.setHeader('X-Source-Url', result.sourceUrl);
+    res.setHeader('X-Decrypt-Mode', result.mode);
+    res.setHeader('X-Nodes-Count', String(result.nodes.length));
+
+    if (format === 'json') {
+      return res.status(200).json({
+        ok: true,
+        sourceUrl: result.sourceUrl,
+        mode: result.mode,
+        count: result.nodes.length,
+        nodes: result.nodes,
+        plainText: result.plainText,
+      });
+    }
+
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    return res.status(200).send(result.plainText);
+  } catch (err) {
+    return res.status(500).json({
+      ok: false,
+      error: String((err && err.message) || err),
+    });
+  }
+};
