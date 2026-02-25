@@ -15,6 +15,7 @@ Vercel serverless API for decrypting built-in subscription payload.
 
 - `url`: single source URL
 - `urls`: multiple source URLs, comma-separated
+- `region`: `cn` (default) or `en`
 - `ua`: custom User-Agent for fetching source
 - `format`: `text` (default) or `json`
 
@@ -23,6 +24,7 @@ If neither `url` nor `urls` is given, default built-in source list is used.
 ## Environment Variables (optional)
 
 - `SUB_URLS`: comma-separated default source URLs
+- `SUB_REGION`: default `cn` or `en` (used when `SUB_URLS` is not set)
 - `SUB_USER_AGENT`: default User-Agent
 
 ## Example

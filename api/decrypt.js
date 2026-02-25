@@ -1,5 +1,6 @@
 const {
   parseUrlsFromEnv,
+  parseUrlsFromRegion,
   DEFAULT_USER_AGENT,
   fetchAndDecrypt,
 } = require('../lib/subscription');
@@ -19,13 +20,14 @@ module.exports = async function handler(req, res) {
   try {
     const queryUrls = String(req.query.urls || '').trim();
     const queryUrl = String(req.query.url || '').trim();
+    const region = String(req.query.region || process.env.SUB_REGION || 'cn').trim().toLowerCase();
     const format = String(req.query.format || 'text').toLowerCase();
 
     const urls = queryUrls
       ? queryUrls.split(',').map((v) => v.trim()).filter(Boolean)
       : queryUrl
       ? [queryUrl]
-      : parseUrlsFromEnv();
+      : (process.env.SUB_URLS ? parseUrlsFromEnv() : parseUrlsFromRegion(region));
 
     const userAgent = String(req.query.ua || process.env.SUB_USER_AGENT || DEFAULT_USER_AGENT).trim();
 
@@ -36,6 +38,7 @@ module.exports = async function handler(req, res) {
     res.setHeader('X-Source-Url', result.sourceUrl);
     res.setHeader('X-Decrypt-Mode', result.mode);
     res.setHeader('X-Nodes-Count', String(result.nodes.length));
+    res.setHeader('X-Region', region);
 
     if (format === 'json') {
       return res.status(200).json({
