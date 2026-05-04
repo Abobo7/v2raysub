@@ -8,6 +8,10 @@ Vercel serverless API for decrypting built-in subscription payload.
   - Default: returns decrypted plain text (node lines)
 - `GET /api/decrypt?format=json`
   - Returns parsed details in JSON
+- `GET /api/mihomo`
+  - Returns FlClash/Mihomo YAML config with proxies, groups, and rules
+- `GET /api/mihomo?format=json`
+  - Returns JSON with parsed proxies and raw YAML
 - `GET /api/health`
   - Health check
 
@@ -17,7 +21,8 @@ Vercel serverless API for decrypting built-in subscription payload.
 - `urls`: multiple source URLs, comma-separated
 - `region`: `cn` (default) or `en`
 - `ua`: custom User-Agent for fetching source
-- `format`: `text` (default) or `json`
+- `format`: `text` (default, for `/api/decrypt`) | `yaml` (default, for `/api/mihomo`) | `json`
+- `fronting`: (mihomo only) fronting host domain to switch all proxy server addresses to (e.g. `cf.090227.xyz`)
 
 If neither `url` nor `urls` is given, default built-in source list is used.
 
@@ -33,4 +38,6 @@ If neither `url` nor `urls` is given, default built-in source list is used.
 /api/decrypt
 /api/decrypt?format=json
 /api/decrypt?url=https://bannedbook.github.io/fanqiang/vsp-en.py
+/api/mihomo
+/api/mihomo?fronting=cf.090227.xyz
 ```
